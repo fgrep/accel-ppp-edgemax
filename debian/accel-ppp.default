@@ -1,1 +1,1 @@
-ACCEL_PPPD_OPTS=""
+ACCEL_PPPD_OPTS="-d -c /etc/accel-ppp/accel-ppp.conf"

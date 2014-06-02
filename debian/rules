@@ -24,7 +24,7 @@ override_dh_installdocs:
 	dh_installdocs --link-doc=accel-ppp
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DLOG_PGSQL=FALSE -DSHAPER=TRUE -DRADIUS=TRUE -DNETSNMP=FALSE -DMIPS_OCTEON_SPINLOCK=TRUE
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DLOG_PGSQL=FALSE -DSHAPER=TRUE -DRADIUS=TRUE -DNETSNMP=FALSE -DLIB_SUFFIX=""
 
 %:
 	dh  $@
