@@ -34,7 +34,11 @@ typedef volatile int __attribute__((aligned)) spinlock_t;
 typedef pthread_spinlock_t spinlock_t;
 #define spin_lock(l) pthread_spin_lock(l)
 #define spin_unlock(l) pthread_spin_unlock(l)
-#define SPINLOCK_INITIALIZER 1
+/* XXX: Does this have to be 1 here?
+*       mipsbe does not like it and it will hang on the first
+*       spin_lock call with lock busy
+*/
+#define SPINLOCK_INITIALIZER 0
 #define spinlock_init(l) pthread_spin_init(l, 0)
 #endif
 

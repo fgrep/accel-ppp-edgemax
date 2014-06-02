@@ -198,10 +198,9 @@ static void apses_stop(void *data);
 
 #define log_tunnel(log_func, conn, fmt, ...)				\
 	do {								\
-		char addr[17];						\
-		u_inet_ntoa(conn->peer_addr.sin_addr.s_addr, addr);	\
 		log_func("l2tp tunnel %hu-%hu (%s:%hu): " fmt,		\
-			 conn->tid, conn->peer_tid, addr,		\
+			 conn->tid, conn->peer_tid,			\
+			 inet_ntoa(conn->peer_addr.sin_addr),		\
 			 ntohs(conn->peer_addr.sin_port),		\
 			 ##__VA_ARGS__);				\
 	} while (0)
@@ -1761,8 +1760,8 @@ static int l2tp_session_start_data_channel(struct l2tp_sess_t *sess)
 			    " allocation of calling station ID failed\n");
 		goto err;
 	}
-	u_inet_ntoa(sess->paren_conn->peer_addr.sin_addr.s_addr,
-		    sess->ctrl.calling_station_id);
+	sess->ctrl.calling_station_id =
+		inet_ntoa(sess->paren_conn->peer_addr.sin_addr);
 
 	sess->ctrl.called_station_id = _malloc(17);
 	if (sess->ctrl.called_station_id == NULL) {
@@ -1771,8 +1770,8 @@ static int l2tp_session_start_data_channel(struct l2tp_sess_t *sess)
 			    " allocation of called station ID failed\n");
 		goto err;
 	}
-	u_inet_ntoa(sess->paren_conn->host_addr.sin_addr.s_addr,
-		    sess->ctrl.called_station_id);
+	sess->ctrl.called_station_id =
+		inet_ntoa(sess->paren_conn->host_addr.sin_addr);
 
 	if (conf_ip_pool) {
 		sess->ppp.ses.ipv4_pool_name = _strdup(conf_ip_pool);
@@ -1839,7 +1838,6 @@ static int l2tp_session_connect(struct l2tp_sess_t *sess)
 	int lns_mode = sess->lns_mode;
 	int flg;
 	uint16_t peer_port;
-	char addr[17];
 
 	if (sess->timeout_timer.tpd)
 		triton_timer_del(&sess->timeout_timer);
@@ -1916,11 +1914,10 @@ static int l2tp_session_connect(struct l2tp_sess_t *sess)
 		goto out_err;
 	}
 
-	u_inet_ntoa(conn->peer_addr.sin_addr.s_addr, addr);
 	peer_port = ntohs(conn->peer_addr.sin_port);
 	if (_asprintf(&sess->ppp.ses.chan_name,
 		      "%s:%hu session %hu-%hu, %hu-%hu",
-		      addr, peer_port,
+		      inet_ntoa(conn->peer_addr.sin_addr), peer_port,
 		      sess->paren_conn->tid, sess->paren_conn->peer_tid,
 		      sess->sid, sess->peer_sid) < 0) {
 		log_session(log_error, sess, "impossible to connect session:"
@@ -2714,9 +2711,9 @@ static int l2tp_recv_SCCRQ(const struct l2tp_serv_t *serv,
 	struct l2tp_conn_t *conn = NULL;
 	struct sockaddr_in host_addr = { 0 };
 	uint16_t tid;
-	char src_addr[17];
+	char *src_addr;
 
-	u_inet_ntoa(pack->addr.sin_addr.s_addr, src_addr);
+	src_addr = inet_ntoa(pack->addr.sin_addr);
 
 	if (ap_shutdown) {
 		log_warn("l2tp: shutdown in progress,"
@@ -2874,7 +2871,6 @@ static int l2tp_recv_SCCRP(struct l2tp_conn_t *conn,
 	const struct l2tp_attr_t *challenge_resp = NULL;
 	const struct l2tp_attr_t *unknown_attr = NULL;
 	const struct l2tp_attr_t *attr = NULL;
-	char host_addr[17];
 
 	if (conn->state != STATE_WAIT_SCCRP) {
 		log_tunnel(log_warn, conn, "discarding unexpected SCCRP\n");
@@ -3010,9 +3006,9 @@ static int l2tp_recv_SCCRP(struct l2tp_conn_t *conn,
 		return -1;
 	}
 
-	u_inet_ntoa(conn->host_addr.sin_addr.s_addr, host_addr);
 	log_tunnel(log_info1, conn, "established at %s:%hu\n",
-		   host_addr, ntohs(conn->host_addr.sin_port));
+		   inet_ntoa(conn->host_addr.sin_addr),
+		   ntohs(conn->host_addr.sin_port));
 
 	return 0;
 }
@@ -3022,7 +3018,6 @@ static int l2tp_recv_SCCCN(struct l2tp_conn_t *conn,
 {
 	const struct l2tp_attr_t *attr = NULL;
 	const struct l2tp_attr_t *challenge_resp = NULL;
-	char host_addr[17];
 
 	if (conn->state != STATE_WAIT_SCCCN) {
 		log_tunnel(log_warn, conn, "discarding unexpected SCCCN\n");
@@ -3070,9 +3065,9 @@ static int l2tp_recv_SCCCN(struct l2tp_conn_t *conn,
 		return -1;
 	}
 
-	u_inet_ntoa(conn->host_addr.sin_addr.s_addr, host_addr);
 	log_tunnel(log_info1, conn, "established at %s:%hu\n",
-		   host_addr, ntohs(conn->host_addr.sin_port));
+		   inet_ntoa(conn->host_addr.sin_addr),
+		   ntohs(conn->host_addr.sin_port));
 
 	return 0;
 }
@@ -4367,7 +4362,7 @@ static int l2tp_udp_read(struct triton_md_handler_t *h)
 	struct l2tp_packet_t *pack;
 	const struct l2tp_attr_t *msg_type;
 	struct in_pktinfo pkt_info;
-	char src_addr[17];
+	char *src_addr;
 
 	while (1) {
 		if (l2tp_recv(h->fd, &pack, &pkt_info,
@@ -4377,7 +4372,7 @@ static int l2tp_udp_read(struct triton_md_handler_t *h)
 		if (!pack)
 			continue;
 
-		u_inet_ntoa(pack->addr.sin_addr.s_addr, src_addr);
+		src_addr = inet_ntoa(pack->addr.sin_addr);
 
 		if (iprange_client_check(pack->addr.sin_addr.s_addr)) {
 			log_warn("l2tp: discarding unexpected message from %s:"

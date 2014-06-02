@@ -1586,8 +1586,8 @@ static struct ipoe_session *ipoe_session_create_up(struct ipoe_serv *serv, struc
 	ses->ctrl.calling_station_id = _malloc(17);
 	ses->ctrl.called_station_id = _strdup(serv->ifname);
 
-	u_inet_ntoa(iph->saddr, ses->ctrl.calling_station_id);
-	
+	inet_ntop(AF_INET, &iph->saddr, ses->ctrl.calling_station_id, sizeof(ses->ctrl.calling_station_id));
+
 	ses->ses.chan_name = ses->ctrl.calling_station_id;
 
 	if (conf_username == USERNAME_UNSET)

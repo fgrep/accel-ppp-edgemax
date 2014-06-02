@@ -348,7 +348,8 @@ void rad_packet_print(struct rad_packet_t *pack, struct rad_server_t *s, void (*
 				print("\"%s\"", attr->val.string);
 				break;
 			case ATTR_TYPE_IPADDR:
-				print("%i.%i.%i.%i", attr->val.ipaddr & 0xff, (attr->val.ipaddr >> 8) & 0xff, (attr->val.ipaddr >> 16) & 0xff, (attr->val.ipaddr >> 24) & 0xff);
+				inet_ntop(AF_INET, &attr->val.ipaddr, ip_str, sizeof(ip_str));
+				print("%s", ip_str);
 				break;
 			case ATTR_TYPE_IFID:
 				ifid_u.ifid = attr->val.ifid;
