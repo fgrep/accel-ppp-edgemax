@@ -12,7 +12,7 @@ extern int urandom_fd;
 
 void __export u_inet_ntoa(in_addr_t addr, char *str)
 {
-	inet_ntop(AF_INET, &addr, str, sizeof(str));
+	inet_ntop(AF_INET, &(addr), str, INET_ADDRSTRLEN);
 }
 
 int __export u_readlong(long int *dst, const char *src,
