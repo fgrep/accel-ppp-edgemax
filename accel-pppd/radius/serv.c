@@ -353,11 +353,10 @@ static void serv_ctx_close(struct triton_context_t *ctx)
 
 static void show_stat(struct rad_server_t *s, void *client)
 {
-	struct timespec ts;
 	char addr[17];
+	struct timespec ts;
 
-	inet_ntop(AF_INET, &s->addr, addr, sizeof(addr));
-
+	u_inet_ntoa(s->addr, addr);
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 
 	cli_sendv(client, "radius(%i, %s):\r\n", s->id, addr);

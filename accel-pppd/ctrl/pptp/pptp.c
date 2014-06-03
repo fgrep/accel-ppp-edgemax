@@ -678,9 +678,9 @@ static int pptp_connect(struct triton_md_handler_t *h)
 		
 		conn->ctrl.calling_station_id = _malloc(17);
 		conn->ctrl.called_station_id = _malloc(17);
-		conn->ctrl.calling_station_id = inet_ntoa(addr.sin_addr);
+		u_inet_ntoa(addr.sin_addr.s_addr, conn->ctrl.calling_station_id);
 		getsockname(sock, &addr, &size);
-		conn->ctrl.called_station_id = inet_ntoa(addr.sin_addr);
+		u_inet_ntoa(addr.sin_addr.s_addr, conn->ctrl.called_station_id);
 	
 		ppp_init(&conn->ppp);
 		conn->ppp.ses.ctrl = &conn->ctrl;

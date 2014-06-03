@@ -515,15 +515,12 @@ static struct pppd_compat_pd *find_pd(struct ap_session *ses)
 
 static void fill_argv(char **argv, struct pppd_compat_pd *pd, char *path)
 {
-	struct in_addr ip_addr, peer_addr;
 	argv[0] = path;
 	argv[1] = pd->ses->ifname;
 	argv[2] = "none";
 	argv[3] = "0";
-	ip_addr.s_addr = pd->ipv4_addr;
-	peer_addr.s_addr = pd->ipv4_peer_addr;
-	argv[4] = inet_ntoa(ip_addr);
-	argv[5] = inet_ntoa(peer_addr);
+	u_inet_ntoa(pd->ipv4_addr, argv[4]);
+	u_inet_ntoa(pd->ipv4_peer_addr, argv[5]);
 	argv[6] = pd->ses->ctrl->calling_station_id;
 	argv[7] = NULL;
 }

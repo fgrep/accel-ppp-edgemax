@@ -70,14 +70,14 @@ static int packet4_hdr(lua_State *L)
 
 	if (!ses || !ses->dhcpv4_request)
 		return 0;
-
+	
 	if (!strcmp(name, "xid"))
 		lua_pushinteger(L, ses->dhcpv4_request->hdr->xid);
 	else if (!strcmp(name, "ciaddr")) {
-		inet_ntop(AF_INET, &ses->dhcpv4_request->hdr->ciaddr, str, sizeof(str));
+		u_inet_ntoa(ses->dhcpv4_request->hdr->ciaddr, str);
 		lua_pushstring(L, str);
 	} else if (!strcmp(name, "giaddr")) {
-		inet_ntop(AF_INET, &ses->dhcpv4_request->hdr->giaddr, str, sizeof(str));
+		u_inet_ntoa(ses->dhcpv4_request->hdr->giaddr, str);
 		lua_pushstring(L, str);
 	} else if (!strcmp(name, "chaddr")) {
 		ptr = ses->dhcpv4_request->hdr->chaddr;
