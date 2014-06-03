@@ -284,6 +284,7 @@ void rad_packet_print(struct rad_packet_t *pack, struct rad_server_t *s, void (*
 		uint64_t ifid;
 		uint16_t u16[4];
 	} ifid_u;
+	in_addr_t addr;
 	
 	if (s)
 		print("[RADIUS(%i) ", s->id);
@@ -348,8 +349,8 @@ void rad_packet_print(struct rad_packet_t *pack, struct rad_server_t *s, void (*
 				print("\"%s\"", attr->val.string);
 				break;
 			case ATTR_TYPE_IPADDR:
-				inet_ntop(AF_INET, &attr->val.ipaddr, ip_str, sizeof(ip_str));
-				print("%s", ip_str);
+				addr = ntohl(attr->val.ipaddr);
+				print("%i.%i.%i.%i", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
 				break;
 			case ATTR_TYPE_IFID:
 				ifid_u.ifid = attr->val.ifid;
