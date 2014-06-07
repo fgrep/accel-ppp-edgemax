@@ -10,7 +10,6 @@ else
 	export LD=$(DEB_HOST_GNU_TYPE)-ld
 	export NM=$(DEB_HOST_GNU_TYPE)-nm
         export CMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt
-	export CFLAGS = -Os -pipe -mno-branch-likely -march=octeon -fno-caller-saves
 endif
 
 .PHONY: override_dh_strip
